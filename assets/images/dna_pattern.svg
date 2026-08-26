@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 60">
+    <defs>
+        <pattern id="dna" x="0" y="0" width="60" height="30" patternUnits="userSpaceOnUse">
+            <g stroke="rgba(255,255,255,0.08)" stroke-width="1.5" fill="none">
+                <!-- DNA double helix structure -->
+                <path d="M10,10 Q30,5 50,10 Q30,15 10,10"/>
+                <path d="M10,20 Q30,25 50,20 Q30,15 10,20"/>
+                <!-- Base pairs -->
+                <line x1="20" y1="10" x2="20" y2="20" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                <line x1="40" y1="10" x2="40" y2="20" stroke="rgba(255,255,255,0.04)" stroke-width="0.8"/>
+                <!-- Molecular nodes -->
+                <circle cx="15" cy="10" r="1" fill="rgba(255,255,255,0.06)"/>
+                <circle cx="45" cy="20" r="1" fill="rgba(255,255,255,0.06)"/>
+            </g>
+        </pattern>
+    </defs>
+    <rect width="120" height="60" fill="url(#dna)"/>
+</svg>

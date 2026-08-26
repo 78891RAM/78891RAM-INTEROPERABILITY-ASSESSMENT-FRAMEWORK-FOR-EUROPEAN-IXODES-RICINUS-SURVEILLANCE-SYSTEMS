@@ -1,0 +1,6 @@
+system_id,system_name,api_availability,schema_completeness,semantic_alignment,update_frequency,spatial_resolution,temporal_coverage,license_openness,data_quality,documentation_quality,governance_gdpr_clarity
+SYS01,VectorNet Data Portal (GBIF),2,2,2,1,2,2,1,2,2,2
+SYS03,CiTIQUE,0,1,0,1,1,2,0,1,1,1
+SYS06,UK Tick Surveillance Scheme (TSS),2,2,2,2,2,2,2,2,2,2
+SYS08,ZEMEKI,1,1,2,2,2,1,0,2,1,1
+SYS11,Punkkilive,0,1,0,2,2,2,0,1,1,0

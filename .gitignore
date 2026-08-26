@@ -1,0 +1,48 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Virtual environment
+venv/
+.venv/
+
+# Test / tooling caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+
+# Regenerated at runtime from outputs/ (pickle cache, per-machine mtimes —
+# not meaningful after a fresh clone/deploy; app rebuilds it on first load)
+.cache/
+
+# Editors / OS
+.DS_Store
+.vscode/
+.idea/
+
+# Environment / secrets
+.env
+.env.*
+
+# ML outputs (user-trained artifacts; keep README and input/)
+data/ml/artifacts/*
+!data/ml/README.md
+!data/ml/input/
+!data/ml/input/**
+!data/ml/artifacts/.gitkeep
+
+# Analysis notebooks with embedded output images — not imported by the
+# deployed app (app.py never touches these), and large enough (40MB+, from
+# inline plot images) to noticeably slow every clone and Render build.
+# Not deleted locally — just not pushed. Remove this line if you do want
+# the notebook(s) in the public repo for dissertation transparency.
+*.ipynb
+
+# Internal design/architecture notes — not read by the deployed app.
+docs/

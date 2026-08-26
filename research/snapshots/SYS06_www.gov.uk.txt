@@ -1,0 +1,290 @@
+# Snapshot of https://www.gov.uk/guidance/tick-surveillance-scheme
+# system_id: SYS06
+# fetched_at: 2026-07-09T20:30:53+00:00
+
+Send a tick to UKHSA’s Tick Surveillance Scheme - GOV.UK
+Cookies on GOV.UK
+We use some essential cookies to make this website work.
+We’d like to set additional cookies to understand how you use GOV.UK, remember your settings and improve government services.
+We also use cookies set by other sites to help us deliver content from their services.
+You have accepted additional cookies.
+You can
+change your cookie settings
+at any time.
+You have rejected additional cookies.
+You can
+change your cookie settings
+at any time.
+Accept additional cookies
+Reject additional cookies
+View cookies
+Hide cookie message
+Skip to main content
+GOV.UK
+Navigation menu
+Menu
+Menu
+Services and information
+Benefits
+Births, death, marriages and care
+Business and self-employed
+Childcare and parenting
+Citizenship and living in the UK
+Crime, justice and the law
+Disabled people
+Driving and transport
+Education and learning
+Employing people
+Environment and countryside
+Housing and local services
+Money and tax
+Passports, travel and living abroad
+Visas and immigration
+Working, jobs and pensions
+Government activity
+Departments
+Departments, agencies and public bodies
+News
+News stories, speeches, letters and notices
+Guidance and regulation
+Detailed guidance, regulations and rules
+Research and statistics
+Reports, analysis and official statistics
+Policy papers and consultations
+Consultations and strategy
+Transparency
+Data, Freedom of Information releases and corporate reports
+Search GOV.UK
+×
+Search GOV.UK
+Search
+Search GOV.UK
+Search
+Home
+Health and social care
+Public health
+Climate and health
+Guidance
+Send a tick to UKHSA’s Tick Surveillance Scheme
+If you have found a tick, send it to UKHSA's Tick Surveillance Scheme and fill in the form on this page. The scheme maps tick distribution and exposure risk.
+From:
+UK Health Security Agency
+and
+Centre for Climate and Health Security
+Published
+2 April 2012
+Last updated
+7 October 2025
+          —
+See all updates
+Get emails about this page
+Contents
+About the tick surveillance scheme
+Send a tick sample
+Sending ticks to us
+Print this page
+About the tick surveillance scheme
+The Tick Surveillance Scheme (
+TSS
+) was set up in 2005 to map and monitor ticks across the UK. All records are available on the National Biodiversity Network (
+NBN
+) gateway for research and public use.
+Data collected from the
+TSS
+informs
+UKHSA
+’s assessments of the public health impact of ticks. Tick samples sent to
+UKHSA
+provide valuable information on the distribution of tick species present across the UK, their seasonal activity and their host associations. This information helps to highlight which tick species are important to human and animal health and helps
+UKHSA
+to detect the presence of species that are not normally resident in the UK.
+The main aims of the scheme are to:
+promote the surveillance of ticks in the UK
+monitor tick distribution and seasonality on a nationwide scale
+determine the diversity of ticks infesting humans and animals
+detect non-native (imported) or rare UK tick species
+By sending in a tick, you are contributing to the formation of distribution maps (see example for
+Ixodes ricinus
+) which enables us to achieve the points above.
+You are also contributing to our understanding of how tick numbers might be changing over time, and the seasonality of tick exposure in the UK. You can find out more about this on the
+UKHSA
+dashboard
+which presents data from the Tick Surveillance Scheme.
+We do not test your tick(s) for pathogens. See the
+Note section
+below for further information.
+Complete a Tick Surveillance Scheme (
+TSS
+) recording form.
+Start now
+Send a tick sample
+UKHSA
+relies upon members of the public, health practitioners, veterinary practitioners, wildlife groups and others to send tick samples to the scheme.
+If you or a member of your family have been bitten by a tick, or you have removed a tick from an animal (pet or wildlife), you can submit a tick sample through our form and send ticks to us in the post.
+Please use the guidance below before filling out the form.
+Information required
+Each tick must be accompanied by a recording form and must include the date and location of collection and the host from which the tick was removed.
+If you provide us with your email address, we will notify you of the results of the identification.
+Different hosts
+If ticks are collected from different hosts or locations, place them in separate containers with a recording form for each container.
+Same hosts
+Ticks from the same host on the same day may be sent in one container.
+Postage
+If submitting multiple records from same host, group containers in envelopes to save postage, ensuring each sample has its own recording form. Please see the following section ‘sending ticks to us’ for more information.
+Preventing deterioration
+To prevent deterioration of the ticks, place them in a fridge or cool, dark place and post as soon as possible.
+Note:
+UKHSA
+does not routinely test ticks submitted through our
+TSS
+for pathogens (such as the bacteria that cause Lyme disease). Some sources of alternative health advice recommend testing ticks after removal for evidence of Borrelia bacteria and commercial companies are starting to offer tick-testing services. The results of such tests should not be used to inform diagnosis or treatment following a tick bite. A positive result does not mean that the infected tick will have passed on the bacteria – there are many factors that determine whether Lyme disease results from a bite from an infected tick. A negative result may not be technically valid and could give false assurance, as it does not exclude the possibility that another tick elsewhere on the body has been missed.
+Find out more about
+how tick and mosquito data is stored and used in the future
+.
+Sending ticks to us
+Please carefully package ticks so that the package does not become damaged during transit. We accept both live and dead ticks for identification. Live ticks must be sent first class.
+When posting ticks, please make sure that you:
+use a small plastic container that is securely fastened; alternatively, a screw-top plastic vial can be supplied on request - email
+tick@ukhsa.gov.uk
+post the container in a padded envelope with a visible return address
+mark the package as
+‘URGENT - LIVING CREATURES - HANDLE WITH CARE’
+(not necessary for dead ticks)
+include a completed recording form
+send to:
+Tick Surveillance Scheme
+UK Health Security Agency
+Porton Down
+Salisbury
+Wiltshire
+SP4 0JG
+UKHSA
+aims to provide identification of ticks via email within 2 weeks of receipt (during exceptionally busy times, this may be longer).
+Figure 1: Map outlining where ticks (Ixodes ricinus) are reported across England, Scotland and Wales
+Postage costs
+Depending on how many ticks you are sending or the size of the tubes you are sending them in, the cost of postage may vary. It should cost approximately £3.05 to £4.19 to send a tick into the
+TSS
+when using the correct shipping materials and method.
+Below are some suggested shipping methods, using Royal Mail 1st class:
+large letter (maximum thickness 2.5cm, max 100g) - our usual vials in a small padded envelope will fit this category
+small parcel (maximum thickness 16cm) - larger containers, for example, universal tubes used by vets, will need to go in this category
+See
+Post Office price finder
+for up-to-date postage costs.
+It is not necessary to post specimens using ‘signed for’ or ‘special delivery’.
+Main resources for tick surveillance scheme:
+Distribution of Ixodes ricinus in England, Scotland and Wales
+Quality and methodology information:  Quarterly Ixodes ricinus tick surveillance data
+(
+PDF
+,
+143 KB
+,
+3 pages
+)
+Updates to this page
+Published 2 April 2012
+Last updated 7 October 2025
+—
+Show all updates
+7 October 2025
+Updated form with new consent section.
+25 June 2025
+Added link to 'Quality and methodology information: Quarterly Ixodes ricinus tick surveillance data'.
+6 March 2025
+The 'tick awareness' part of this page has been moved to a new page: https://www.gov.uk/guidance/tick-awareness-and-toolkit.
+5 March 2025
+Removal of  'tick awareness' published in error, reverted to previous live version.
+5 March 2025
+The 'tick awareness' part of this page has been moved to a new page. Please https://www.gov.uk/guidance/tick-awareness-and-toolkit.
+5 March 2024
+Added a link to the UKHSA privacy policy.
+17 May 2022
+Temporarily removed tick awareness for schools section.
+1 March 2022
+Added section on "How will my information be stored/used in the future?" and updated organisation details.
+8 July 2021
+Updated map showing records of Ixodes ricinus.
+23 October 2019
+Updated information on postage and testing ticks.
+6 August 2019
+Added information on tick-borne encephalitis.
+13 August 2018
+Updated guidance document with new Royal Mail postage costs.
+22 May 2018
+Updated resources link to TES website.
+26 March 2018
+Updated guidance and documents.
+12 May 2016
+Updated postage costs as of May 2016.
+2 April 2012
+First published.
+Sign up for emails or print this page
+Get emails about this page
+Print this page
+Contents
+Related content
+Collection
+Ticks
+Explore the topic
+Climate and health
+Is this page useful?
+Maybe
+Yes
+this page is useful
+No
+this page is not useful
+Thank you for your feedback
+Report a problem with this page
+Help us improve GOV.UK
+Do not include personal or financial information like your National Insurance number or credit card details.
+This field is for robots only. Please leave blank
+What were you doing?
+What went wrong?
+Send
+Cancel
+Help us improve GOV.UK
+To help us improve GOV.UK, we’d like to know more about your visit today.
+Please fill in this survey (opens in a new tab
+)
+.
+Cancel
+Services and information
+Benefits
+Births, death, marriages and care
+Business and self-employed
+Childcare and parenting
+Citizenship and living in the UK
+Crime, justice and the law
+Disabled people
+Driving and transport
+Education and learning
+Employing people
+Environment and countryside
+Housing and local services
+Money and tax
+Passports, travel and living abroad
+Visas and immigration
+Working, jobs and pensions
+Government activity
+Departments
+News
+Guidance and regulation
+Research and statistics
+Policy papers and consultations
+Transparency
+How government works
+Get involved
+Support links
+Help
+Privacy
+Cookies
+Accessibility statement
+Contact
+Terms and conditions
+Rhestr o Wasanaethau Cymraeg
+Government Digital Service
+All content is available under the
+Open Government Licence v3.0
+, except where otherwise stated
+© Crown copyright

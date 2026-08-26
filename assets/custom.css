@@ -1,0 +1,215 @@
+
+/* Professional surveillance theme styling */
+body {
+    font-family: system-ui, -apple-system, sans-serif !important;
+    background: #f8f9fa !important;
+}
+
+#app-chrome .tab {
+    font-family: system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    color: #2c3e50;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 8px 8px 0 0;
+    margin-right: 2px;
+    transition: all 0.2s ease-in-out;
+}
+
+#app-chrome .tab:hover {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2d5a3d;
+}
+
+#app-chrome .tab--selected {
+    border-top: 3px solid #2d5a3d !important;
+    background: #ffffff !important;
+    font-weight: 600;
+    color: #2d5a3d !important;
+}
+
+
+#main-tabs.tab-container {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+}
+
+#main-tabs .tab {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    white-space: nowrap !important;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner th,
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td {
+    text-align: left !important;
+}
+
+/* Wide tables (e.g. Evidence, with 9 citation columns) scroll horizontally inside their
+   own container, but macOS hides trackpad-style scrollbars until you actively scroll —
+   with no visible cue, the cut-off columns on the right read as a bug rather than
+   "scroll for more". Force a permanently visible, styled scrollbar on the table's own
+   scroll container so the affordance is obvious. */
+.dash-spreadsheet-container {
+    scrollbar-width: auto !important; /* Firefox: always show, don't auto-hide */
+}
+
+.dash-spreadsheet-container::-webkit-scrollbar {
+    height: 10px !important;
+    -webkit-appearance: none !important;
+}
+
+.dash-spreadsheet-container::-webkit-scrollbar-track {
+    background: #eef1f3 !important;
+    border-radius: 6px !important;
+}
+
+.dash-spreadsheet-container::-webkit-scrollbar-thumb {
+    background: #9fb2c3 !important;
+    border-radius: 6px !important;
+}
+
+.dash-spreadsheet-container::-webkit-scrollbar-thumb:hover {
+    background: #2d5a3d !important;
+}
+
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td.dash-cell[data-dash-column*="total_score"],
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td.dash-cell[data-dash-column*="barrier_count"],
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td.dash-cell[data-dash-column*="rank"],
+.dash-table-container .dash-spreadsheet-container .dash-spreadsheet-inner td.dash-cell[data-dash-column*="priority"] {
+    text-align: right !important;
+}
+
+/* Filter CSS removed - no longer using in-table filters */
+
+/* Enhanced card-based layout styling */
+.dash-graph {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #e8ecef;
+    box-shadow: 0 2px 8px rgba(45, 90, 61, 0.06), 0 1px 3px rgba(45, 90, 61, 0.04);
+}
+
+/* Improve spacing and typography */
+h1, h2, h3, h4, h5, h6 {
+    font-family: system-ui, -apple-system, sans-serif !important;
+    color: #2c3e50 !important;
+    line-height: 1.4 !important;
+}
+
+p, div, span {
+    font-family: system-ui, -apple-system, sans-serif !important;
+    line-height: 1.6 !important;
+}
+
+/* Enhanced KPI cards with hover effects */
+div[style*="borderTop"][style*="#2d5a3d"]:hover {
+    box-shadow: 0 4px 12px rgba(45, 90, 61, 0.1), 0 2px 6px rgba(45, 90, 61, 0.06) !important;
+    transform: translateY(-1px);
+}
+
+/* Three-column layout responsive behavior */
+@media screen and (max-width: 1400px) {
+    /* On medium screens, stack map controls below the map */
+    div[style*="display: flex"][style*="gap: 20px"] {
+        flex-wrap: wrap !important;
+    }
+}
+
+@media screen and (max-width: 1000px) {
+    /* On smaller screens, stack all elements vertically */
+    div[style*="display: flex"][style*="gap: 20px"] {
+        flex-direction: column !important;
+    }
+}
+
+/* Responsive design improvements */
+@media screen and (max-width: 768px) {
+    /* Mobile header adjustments */
+    #app-chrome h1 {
+        font-size: 1.3rem !important;
+        line-height: 1.2 !important;
+    }
+    
+    #app-chrome p {
+        font-size: 0.8rem !important;
+    }
+    
+    /* Mobile tab content */
+    #tab-content {
+        padding: 8px !important;
+    }
+    
+    /* Make tables horizontally scrollable */
+    .dash-table-container {
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+    
+    /* Stack KPI cards on mobile */
+    .kpi-row {
+        flex-direction: column !important;
+        gap: 12px !important;
+    }
+    
+    .kpi-row > div {
+        min-width: 100% !important;
+    }
+    
+    /* Charts responsive */
+    .chart-row {
+        flex-direction: column !important;
+        gap: 16px !important;
+    }
+    
+    .chart-row > div {
+        min-width: 100% !important;
+        flex: none !important;
+    }
+    
+    /* Header responsive layout */
+    #app-chrome > div > div > div {
+        flex-direction: column !important;
+        text-align: center !important;
+        gap: 16px !important;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* Very small screens */
+    #app-chrome {
+        padding-bottom: 4px !important;
+    }
+    
+    #app-chrome h1 {
+        font-size: 1.1rem !important;
+    }
+    
+    /* Smaller cards on mobile */
+    div[style*="borderTop"][style*="#2d5a3d"] {
+        padding: 12px 16px !important;
+        min-height: 80px !important;
+    }
+}
+
+/* Responsive Evidence Table */
+@media screen and (max-width: 1024px) {
+    .evidence-table-desktop {
+        display: none !important;
+    }
+    
+    .evidence-table-mobile {
+        display: block !important;
+    }
+}
+
+@media screen and (min-width: 1025px) {
+    .evidence-table-desktop {
+        display: block !important;
+    }
+    
+    .evidence-table-mobile {
+        display: none !important;
+    }
+}

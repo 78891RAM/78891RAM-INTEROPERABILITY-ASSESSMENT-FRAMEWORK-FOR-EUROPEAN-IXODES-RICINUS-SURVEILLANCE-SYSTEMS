@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 200">
+    <defs>
+        <pattern id="tick-pattern" x="0" y="0" width="200" height="100" patternUnits="userSpaceOnUse">
+            <!-- Microscopic tick silhouette -->
+            <g fill="rgba(44, 82, 130, 0.04)" transform="translate(50, 25)">
+                <!-- Body -->
+                <ellipse cx="50" cy="25" rx="15" ry="25" transform="rotate(15 50 25)"/>
+                <!-- Legs -->
+                <line x1="35" y1="15" x2="25" y2="5" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <line x1="35" y1="25" x2="20" y2="25" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <line x1="35" y1="35" x2="25" y2="45" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <line x1="65" y1="15" x2="75" y2="5" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <line x1="65" y1="25" x2="80" y2="25" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <line x1="65" y1="35" x2="75" y2="45" stroke="rgba(44, 82, 130, 0.03)" stroke-width="2"/>
+                <!-- Capitulum (head) -->
+                <circle cx="50" cy="5" r="6" fill="rgba(44, 82, 130, 0.05)"/>
+            </g>
+            
+            <!-- Smaller tick in different position -->
+            <g fill="rgba(56, 161, 105, 0.03)" transform="translate(150, 60) rotate(-30)">
+                <ellipse cx="0" cy="0" rx="8" ry="15"/>
+                <circle cx="0" cy="-10" r="3" fill="rgba(56, 161, 105, 0.04)"/>
+            </g>
+            
+            <!-- Molecular structure elements -->
+            <g stroke="rgba(44, 82, 130, 0.02)" stroke-width="1" fill="none">
+                <circle cx="30" cy="80" r="3" fill="rgba(44, 82, 130, 0.02)"/>
+                <circle cx="170" cy="30" r="3" fill="rgba(44, 82, 130, 0.02)"/>
+                <line x1="30" y1="80" x2="170" y2="30"/>
+            </g>
+        </pattern>
+        
+        <!-- Scientific grid -->
+        <pattern id="sci-grid" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(44, 82, 130, 0.08)" stroke-width="0.5"/>
+        </pattern>
+    </defs>
+    
+    <!-- Background -->
+    <rect width="400" height="200" fill="url(#sci-grid)"/>
+    <rect width="400" height="200" fill="url(#tick-pattern)"/>
+</svg>
