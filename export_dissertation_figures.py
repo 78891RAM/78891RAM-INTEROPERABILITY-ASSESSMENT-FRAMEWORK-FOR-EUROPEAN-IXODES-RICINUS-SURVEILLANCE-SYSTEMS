@@ -63,10 +63,21 @@ from ui.tabs.recommendations import RECOMMENDATIONS_TABLE_COLS  # noqa: E402
 from ui.tabs.suitability import (  # noqa: E402
     _get_notebook_data,
     _build_enhanced_map_figure,
+    _mask_within_study_countries,
     DEFAULT_ENHANCED_LAYERS,
     FIGURES_DIR as DASHBOARD_STATIC_FIGURES_DIR,
 )
 from ui.styles import THEME_GREEN  # noqa: E402
+
+# Same 4 colours core.geo/ui.tabs.suitability use for these countries
+# elsewhere (READINESS_COLORS-adjacent, but this is a category-by-country
+# map, not a readiness map, so it gets its own small, consistent palette).
+STUDY_COUNTRY_COLORS = {
+    "Austria": "#2d5a3d",
+    "Croatia": "#2980b9",  # distinct from Austria's green — their points touch at the shared border
+    "Estonia": "#f39c12",
+    "Ireland": "#c0392b",
+}
 
 DISSERTATION_ROOT = SCRIPT_DIR.parent  # .../Dessertation
 OUTPUT_DIR = DISSERTATION_ROOT / "dissertation_figures"
@@ -232,6 +243,116 @@ def _dataframe_to_table_figure(df: pd.DataFrame, title: str) -> tuple[go.Figure,
     return fig, total_width, total_height
 
 
+def _build_spatial_validation_blocks_map(occurrence_points: pd.DataFrame) -> go.Figure:
+    """Real map replacement for outputs/figures/spatial_validation_blocks.png
+    (the matplotlib original has no basemap, coastlines, or country borders —
+    just a bare lat/lon scatter). Same per-country colouring the source image
+    used, same real-polygon restriction to the 4 study countries as the
+    suitability map, same basemap style as the rest of this script's maps.
+    """
+    df = occurrence_points.copy()
+    mask = _mask_within_study_countries(df["lat"].to_numpy(), df["lon"].to_numpy())
+    df = df.loc[mask]
+
+    traces = []
+    for country in ["Austria", "Croatia", "Estonia", "Ireland"]:
+        subset = df[df["system"] == country]
+        if subset.empty:
+            continue
+        traces.append(
+            go.Scattergeo(
+                lat=subset["lat"], lon=subset["lon"],
+                mode="markers",
+                marker=dict(size=6, color=STUDY_COUNTRY_COLORS[country], opacity=0.75, line=dict(width=0.5, color="white")),
+                name=f"{country} ({len(subset)} pts)",
+            )
+        )
+
+    fig = go.Figure(data=traces)
+    fig.update_geos(
+        scope="europe",
+        projection_type="natural earth",
+        showcountries=True,
+        showland=True,
+        showocean=True,
+        landcolor="#f9f9f9",
+        oceancolor="#e8f4f8",
+        countrycolor="#666666",
+        lataxis_range=[34, 62],
+        lonaxis_range=[-12, 32],
+        bgcolor="rgba(0,0,0,0)",
+    )
+    fig.update_layout(
+        title=dict(text="Spatial Cross-Validation Blocks by Country", x=0.5, xanchor="center", font=dict(size=16, color=THEME_GREEN)),
+        margin=dict(t=50, b=10, l=10, r=10),
+        legend=dict(bgcolor="rgba(255,255,255,0.9)", bordercolor="#bdc3c7", borderwidth=1),
+        paper_bgcolor="white",
+        font=dict(family="system-ui, sans-serif", size=13, color="#2c3e50"),
+    )
+    return fig
+
+
+def _build_presence_absence_map(occurrence_points: pd.DataFrame) -> go.Figure:
+    """Real map replacement for outputs/figures/observed_presence_map.png and
+    presence_background.png — both had correct data and legends but no
+    basemap/coastlines/country borders (bare lat/lon scatter). Shows presence
+    AND background (absence) points together across all 4 study countries,
+    on the same basemap style as the other maps in this script.
+    """
+    df = occurrence_points.copy()
+    mask = _mask_within_study_countries(df["lat"].to_numpy(), df["lon"].to_numpy())
+    df = df.loc[mask]
+
+    background = df[df["type"] == "background"]
+    presence = df[df["type"] == "presence"]
+
+    traces = [
+        go.Scattergeo(
+            lat=background["lat"], lon=background["lon"],
+            mode="markers",
+            marker=dict(size=5, color="#9e9e9e", opacity=0.6, line=dict(width=0.5, color="white")),
+            name=f"Absence ({len(background)})",
+        ),
+        go.Scattergeo(
+            lat=presence["lat"], lon=presence["lon"],
+            mode="markers",
+            marker=dict(size=6, color="#27ae60", opacity=0.8, line=dict(width=0.5, color="white")),
+            name=f"Presence ({len(presence)})",
+        ),
+    ]
+
+    fig = go.Figure(data=traces)
+    fig.update_geos(
+        scope="europe",
+        projection_type="natural earth",
+        showcountries=True,
+        showland=True,
+        showocean=True,
+        landcolor="#f9f9f9",
+        oceancolor="#e8f4f8",
+        countrycolor="#666666",
+        lataxis_range=[34, 62],
+        lonaxis_range=[-12, 32],
+        bgcolor="rgba(0,0,0,0)",
+    )
+    fig.update_layout(
+        title=dict(
+            text="Observed Presence and Background Locations (training: Austria, Croatia — external: Estonia, Ireland)",
+            x=0.5, xanchor="center", font=dict(size=15, color=THEME_GREEN),
+        ),
+        # r=260, not the ~10px the other maps on this page use: a geo subplot
+        # doesn't auto-reserve canvas space for an outside legend the way a
+        # cartesian plot does, and this legend's longest label ("Background /
+        # absence (357 pts)") was clipping past the image edge without an
+        # explicit, generous right margin reserved for it.
+        margin=dict(t=60, b=10, l=10, r=260),
+        legend=dict(x=1.0, xanchor="left", y=0.95, bgcolor="rgba(255,255,255,0.9)", bordercolor="#bdc3c7", borderwidth=1),
+        paper_bgcolor="white",
+        font=dict(family="system-ui, sans-serif", size=13, color="#2c3e50"),
+    )
+    return fig
+
+
 def main() -> None:
     print(f"Output directory: {OUTPUT_DIR}")
     if OUTPUT_DIR.exists():
@@ -358,20 +479,52 @@ def main() -> None:
             max_suitability_points=None, restrict_to_study_countries=True,
         )
         export_figure(suit_fig, "fig_suitability_map_full_resolution", width=1500, height=960)
+
+        # "observed_vs_suitability" replacement: outputs/figures/observed_vs_suitability.png
+        # is broken (title literally says "Suitability surface not shown -
+        # requires raster processing", and has no basemap) — this is
+        # genuinely the same content, done correctly: occurrence points over
+        # the real suitability surface, on a proper map, restricted to the
+        # study countries. Same figure object as fig_suitability_map_full_resolution
+        # (that IS the corrected "observed vs suitability" map) under the
+        # expected filename, so both dissertation section references resolve.
+        export_figure(suit_fig, "fig_suitability_observed_vs_predicted", width=1500, height=960)
+
+        # "spatial_validation_blocks" replacement: same broken-basemap problem
+        # (no coastlines/borders, just raw scatter) — real map version below.
+        blocks_fig = _build_spatial_validation_blocks_map(notebook_data.occurrence_points)
+        export_figure(blocks_fig, "fig_suitability_spatial_validation_blocks", width=1500, height=960)
+
+        # Presence + background (absence) locations together, across all 4
+        # study countries, on a real basemap — replaces observed_presence_map.png
+        # / presence_background.png, which had correct data but no map context.
+        pa_fig = _build_presence_absence_map(notebook_data.occurrence_points)
+        export_figure(pa_fig, "fig_suitability_presence_absence_map", width=1500, height=960)
     else:
         print("  SKIPPED — notebook outputs not available (see ui/tabs/suitability.py _missing_data_block).")
 
-    # --- Notebook-generated static PNGs already displayed in the Ecological
-    # Suitability tab's "Driver Importance and Partial Dependence" section
-    # (ui/tabs/suitability.py: _create_figures_display). These are matplotlib
-    # images, not Plotly figures — Kaleido cannot regenerate them, so they are
-    # copied through unchanged (same pixels the dashboard displays). ---
+    # --- Notebook-generated static PNGs, copied through unchanged (matplotlib,
+    # not Plotly, so Kaleido can't regenerate them). All individually checked
+    # for rendering bugs (see chat write-up) — feature_importance and
+    # partial_dependence_curves are the two already shown in the dashboard;
+    # the rest are extra modelling-evidence figures from the full notebook
+    # pipeline (Ixodes_ricinus_Model.ipynb) that aren't in the dashboard but
+    # are genuinely useful dissertation evidence — cleaning_funnel had a real
+    # duplicate-row bug (Estonia/Ireland listed twice) that's been fixed at
+    # the source (data/report + notebook code) before this copy. ---
     print("Static notebook figures shown in the dashboard (copied, not regenerated):")
     static_figures = [
         ("feature_importance.png", "fig_suitability_feature_importance.png"),
         ("partial_dependence_curves.png", "fig_suitability_partial_dependence.png"),
-        ("observed_vs_suitability.png", "fig_suitability_observed_vs_predicted.png"),
-        ("spatial_validation_blocks.png", "fig_suitability_spatial_validation_blocks.png"),
+        ("architecture.png", "fig_pipeline_architecture.png"),
+        ("cleaning_funnel.png", "fig_suitability_cleaning_funnel.png"),
+        ("leakage_comparison.png", "fig_suitability_leakage_comparison.png"),
+        ("feature_set_progression.png", "fig_suitability_feature_set_progression.png"),
+        ("model_comparison_heatmap.png", "fig_suitability_model_comparison_heatmap.png"),
+        ("metrics_heatmap.png", "fig_suitability_metrics_heatmap.png"),
+        ("external_validation_heatmap.png", "fig_suitability_external_validation_heatmap.png"),
+        ("environmental_distributions.png", "fig_suitability_environmental_distributions.png"),
+        ("roc_pr_curves.png", "fig_suitability_roc_pr_curves.png"),
     ]
     for src_name, dst_name in static_figures:
         src = DASHBOARD_STATIC_FIGURES_DIR / src_name
