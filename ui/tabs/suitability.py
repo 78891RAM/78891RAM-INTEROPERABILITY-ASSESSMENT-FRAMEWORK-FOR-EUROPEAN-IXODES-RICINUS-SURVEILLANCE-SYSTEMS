@@ -2,8 +2,9 @@
 Enhanced Ecological Suitability tab — integrates notebook ML outputs.
 
 Renders suitability predictions, occurrence points, model comparison tables,
-transfer matrices, external validation results, and feature importance from
-the enhanced notebook pipeline. Uses the existing styling and color maps.
+transfer matrices, exploratory held-out transfer results (Estonia/Ireland —
+not "external validation"; the held-out samples are very small), and
+feature importance from the enhanced notebook pipeline.
 """
 
 from __future__ import annotations
@@ -20,6 +21,19 @@ from dash import Input, Output, dcc, html
 
 from ui.cards import kpi_card
 from ui.downloads import download_button, register_download
+from ui.maps.map_layers import (
+    MODEL_DEVELOPMENT_COUNTRIES,
+    EXPLORATORY_TRANSFER_COUNTRIES,
+    SUITABILITY_INTERPRETATION_NOTE,
+)
+from ui.maps.suitability_map import (
+    build_suitability_map,
+    build_raster_legend,
+    RASTER_LAYER_OPTIONS,
+    COUNTRY_VIEW_OPTIONS,
+    DEFAULT_RASTER_LAYER,
+    get_country_view,
+)
 from ui.styles import (
     BLOCK, CHART_MARGIN, KPI_ROW, MUTED, THEME_GREEN, CONTENT_CARD,
     SECTION_CARD, HEADING_2, HEADING_3, BODY_TEXT, TEXT_MUTED, TEXT_DARK, BORDER_LIGHT
@@ -314,230 +328,132 @@ def layout(snapshot=None) -> html.Div:
         ],
     )
 
-    # Map controls (simplified)
-    map_controls = html.Div(
-        style={"marginBottom": "16px"},
-        children=[
-            html.Label("Map Layers", style={"fontWeight": "600", "fontSize": "0.85rem", "marginBottom": "8px", "display": "block"}),
-            dcc.Checklist(
-                id="enhanced-suitability-layers",
-                options=ENHANCED_LAYER_OPTIONS,
-                value=DEFAULT_ENHANCED_LAYERS,
-                labelStyle={"display": "block", "fontSize": "0.88rem", "margin": "4px 0"},
-            ),
-        ]
-    )
-
-    # VectorNet-style legend panel (compact)
-    legend_panel = html.Div(
+    # Study roles panel (items 4, 9) — methodological role, not just flags.
+    # Estonia/Ireland are always "Exploratory held-out transfer", never
+    # "validation" — the held-out samples are very small (7 and 19 unique
+    # locations; see outputs/external_validation.csv) — see
+    # ui/maps/map_layers.py's STUDY_COUNTRY_ROLE docstring for why.
+    study_roles_panel = html.Div(
         style={
-            "width": "180px",  # Reduced from 240px
-            "padding": "6px",   # Reduced padding
-            "height": "fit-content",
+            "border": f"1px solid {BORDER_LIGHT}", "borderRadius": "4px",
+            "padding": "10px 12px", "marginBottom": "12px", "background": "#fafbfa",
         },
         children=[
-            # Professional VectorNet-style Legend
-            html.Div([
-                # Native status section (primary)
-                html.Div([
-                    html.Label("Native status", style={
-                        "fontWeight": "600", 
-                        "fontSize": "0.75rem", 
-                        "marginBottom": "4px", 
-                        "display": "block",
-                        "color": "#2c3e50",
-                    }),
-                    
-                    # Present (VectorNet red)
+            html.Div("Study systems", style={"fontWeight": 600, "fontSize": "0.8rem", "marginBottom": "6px", "color": THEME_GREEN}),
+            html.Div(
+                style={"display": "flex", "gap": "24px", "flexWrap": "wrap"},
+                children=[
                     html.Div([
-                        html.Div(style={
-                            "width": "14px",
-                            "height": "10px", 
-                            "backgroundColor": "#c44e52",  # VectorNet red
-                            "display": "inline-block",
-                            "marginRight": "5px",
-                        }),
-                        html.Span("Present", style={"fontSize": "0.7rem", "fontWeight": "400"}),
-                    ], style={"marginBottom": "2px", "display": "flex", "alignItems": "center"}),
-                    
-                    # No data (darker, more distinct)
+                        html.Div("Model development", style={"fontSize": "0.72rem", "fontWeight": 600, "color": "#555"}),
+                        html.Div(", ".join(MODEL_DEVELOPMENT_COUNTRIES), style={"fontSize": "0.78rem"}),
+                    ]),
                     html.Div([
-                        html.Div(style={
-                            "width": "14px", 
-                            "height": "10px",
-                            "backgroundColor": "#757575",  # Darker grey for better contrast
-                            "display": "inline-block", 
-                            "marginRight": "5px",
-                            "border": "1px solid #424242",  # Add border for definition
-                        }),
-                        html.Span("No data", style={"fontSize": "0.7rem", "fontWeight": "400"}),
-                    ], style={"marginBottom": "8px", "display": "flex", "alignItems": "center"}),
-                ]),
-                
-                # Observation data section
-                html.Div([
-                    html.Label("Observations", style={
-                        "fontWeight": "600", 
-                        "fontSize": "0.75rem", 
-                        "marginBottom": "4px", 
-                        "display": "block",
-                        "color": "#2c3e50",
-                    }),
-                    
-                    # Presence Points
-                    html.Div([
-                        html.Div(style={
-                            "width": "10px", 
-                            "height": "10px",
-                            "backgroundColor": PRESENCE_COLORS["presence"],
-                            "display": "inline-block", 
-                            "marginRight": "5px",
-                            "borderRadius": "50%",
-                            "border": "0.5px solid #fff",
-                        }),
-                        html.Span("Presence", style={"fontSize": "0.7rem", "fontWeight": "400"}),
-                    ], style={"marginBottom": "2px", "display": "flex", "alignItems": "center"}),
-                    
-                    # Background Points
-                    html.Div([
-                        html.Div(style={
-                            "width": "10px", 
-                            "height": "10px",
-                            "backgroundColor": "#9e9e9e",  # Distinct medium grey
-                            "display": "inline-block", 
-                            "marginRight": "5px", 
-                            "borderRadius": "50%",
-                            "border": "1px solid #616161",  # Darker border for contrast
-                        }),
-                        html.Span("Background", style={"fontSize": "0.7rem", "fontWeight": "400"}),
-                    ], style={"marginBottom": "8px", "display": "flex", "alignItems": "center"}),
-                ]),
-                
-                # Model output section
-                html.Div([
-                    html.Label("Model output", style={
-                        "fontWeight": "600", 
-                        "fontSize": "0.75rem", 
-                        "marginBottom": "4px", 
-                        "display": "block",
-                        "color": "#2c3e50",
-                    }),
-                    
-                    # Suitability gradient
-                    html.Div([
-                        html.Div(style={
-                            "width": "20px",
-                            "height": "8px", 
-                            "background": "linear-gradient(to right, #d73027, #fee08b, #1a9850)",
-                            "display": "inline-block",
-                            "marginRight": "5px",
-                            "border": "0.5px solid #999",
-                        }),
-                        html.Span("Suitability (0-1)", style={"fontSize": "0.7rem", "fontWeight": "400"}),
-                    ], style={"marginBottom": "2px", "display": "flex", "alignItems": "center"}),
-                ]),
-            ]),
-            
-            
-            # Study Countries
-            html.Div([
-                html.Label("Study countries", style={
-                    "fontWeight": "600", 
-                    "fontSize": "0.75rem", 
-                    "marginBottom": "4px", 
-                    "display": "block",
-                    "color": "#2c3e50",
-                }),
-                
-                # Countries list
-                html.Div([
-                    html.Span("🇦🇹 Austria", style={"fontSize": "0.7rem", "color": "#666", "fontWeight": "400"}),
-                    html.Span(" • ", style={"fontSize": "0.7rem", "color": "#ccc", "margin": "0 4px"}),
-                    html.Span("🇭🇷 Croatia", style={"fontSize": "0.7rem", "color": "#666", "fontWeight": "400"}),
-                ], style={"marginBottom": "2px"}),
-                html.Div([
-                    html.Span("🇪🇪 Estonia", style={"fontSize": "0.7rem", "color": "#666", "fontWeight": "400"}),
-                    html.Span(" • ", style={"fontSize": "0.7rem", "color": "#ccc", "margin": "0 4px"}),
-                    html.Span("🇮🇪 Ireland", style={"fontSize": "0.7rem", "color": "#666", "fontWeight": "400"}),
-                ], style={"marginBottom": "4px"}),
-            ]),
-            
-        ]
+                        html.Div("Exploratory held-out transfer", style={"fontSize": "0.72rem", "fontWeight": 600, "color": "#555"}),
+                        html.Div(", ".join(EXPLORATORY_TRANSFER_COUNTRIES), style={"fontSize": "0.78rem"}),
+                    ]),
+                ],
+            ),
+        ],
+    )
+
+    # Structured control panel (item 3) — replaces the flat layer checkbox.
+    # One radio selects which single continuous raster is shown (merges the
+    # spec's "MODEL OUTPUT" and "ENVIRONMENTAL CONTEXT" groups, which both
+    # listed "Predicted environmental suitability" as an option — one
+    # control choosing among all 5 layers covers both without asking the
+    # same question twice).
+    control_panel = html.Div(
+        style={
+            "width": "220px", "padding": "10px 12px", "height": "fit-content",
+            "border": f"1px solid {BORDER_LIGHT}", "borderRadius": "4px", "background": "#fff",
+        },
+        children=[
+            html.Div("Map layers", style={"fontWeight": 600, "fontSize": "0.85rem", "marginBottom": "10px", "color": THEME_GREEN}),
+
+            html.Label("Environmental context", style={"fontWeight": 600, "fontSize": "0.72rem", "display": "block", "marginBottom": "4px"}),
+            dcc.RadioItems(
+                id="suitability-raster-radio",
+                options=RASTER_LAYER_OPTIONS,
+                value=DEFAULT_RASTER_LAYER,
+                labelStyle={"display": "block", "fontSize": "0.75rem", "margin": "2px 0"},
+            ),
+            html.P(
+                "Only one continuous layer is shown at a time.",
+                style={"fontSize": "0.68rem", "color": TEXT_MUTED, "margin": "4px 0 12px", "fontStyle": "italic"},
+            ),
+
+            html.Label("Observed data", style={"fontWeight": 600, "fontSize": "0.72rem", "display": "block", "marginBottom": "4px"}),
+            dcc.Checklist(
+                id="suitability-observed-checklist",
+                options=[
+                    {"label": "Ixodes ricinus occurrence records", "value": "occurrence"},
+                    {"label": "Background points", "value": "background"},
+                ],
+                value=["occurrence"],
+                labelStyle={"display": "block", "fontSize": "0.75rem", "margin": "2px 0"},
+            ),
+            html.Div(style={"height": "10px"}),
+
+            html.Label("Boundaries", style={"fontWeight": 600, "fontSize": "0.72rem", "display": "block", "marginBottom": "4px"}),
+            dcc.Checklist(
+                id="suitability-boundaries-checklist",
+                options=[{"label": "Study-country boundaries", "value": "boundaries"}],
+                value=["boundaries"],
+                labelStyle={"display": "block", "fontSize": "0.75rem", "margin": "2px 0"},
+            ),
+            html.Div(style={"height": "10px"}),
+
+            html.Label("Country view", style={"fontWeight": 600, "fontSize": "0.72rem", "display": "block", "marginBottom": "4px"}),
+            dcc.Dropdown(
+                id="suitability-country-dropdown",
+                options=COUNTRY_VIEW_OPTIONS,
+                value="all",
+                clearable=False,
+                style={"fontSize": "0.78rem"},
+            ),
+        ],
     )
 
     # Main map section with legend on left, map centered, controls on right
     map_section = html.Div(
         style=BLOCK,
         children=[
-            # VectorNet-style professional header
             html.Div([
-                html.H4("Ixodes ricinus - Predicted Suitability and Observations", style={
-                    "color": THEME_GREEN, 
-                    "marginBottom": "4px",
-                    "fontSize": "1.1rem",
-                    "fontWeight": "600"
-                }),
-                html.P("European Surveillance Interoperability Assessment - August 2026", style={
-                    "color": TEXT_MUTED,
-                    "fontSize": "0.8rem", 
-                    "margin": "0 0 12px 0",
-                    "fontStyle": "italic"
+                html.H4("Ecological Suitability Map", style={
+                    "color": THEME_GREEN, "marginBottom": "4px", "fontSize": "1.1rem", "fontWeight": "600",
                 }),
             ]),
+            study_roles_panel,
             html.Div(
-                style={
-                    "display": "flex", 
-                    "gap": "8px",  # Reduced gap from 12px to 8px
-                    "alignItems": "flex-start",
-                    "flexWrap": "wrap",
-                },
+                style={"display": "flex", "gap": "12px", "alignItems": "flex-start", "flexWrap": "wrap"},
                 children=[
-                    # Legend on the left
-                    legend_panel,
-                    # Map in the center
                     html.Div(
                         style={"flex": "1", "minWidth": "600px"},
                         children=[
                             download_button("dl-suitability-map"),
-                            dcc.Graph(
-                                id="enhanced-suitability-map",
-                                figure=_build_enhanced_map_figure(data, DEFAULT_ENHANCED_LAYERS),
-                                config={"scrollZoom": True},
-                                style={
-                                    "height": "80vh", 
-                                    "minHeight": "600px",
-                                    "border": "none",
-                                    "borderRadius": "0",
-                                    "boxShadow": "none",
-                                },
+                            html.Div(
+                                id="suitability-leaflet-container",
+                                children=build_suitability_map(data.occurrence_points),
                             ),
-                            perf_caption,  # Add performance caption under map
-                        ]
+                        ],
                     ),
-                    # Map layers control (compact)
                     html.Div(
-                        style={
-                            "width": "140px",  # Reduced from 160px
-                            "padding": "6px",   # Reduced padding
-                            "height": "fit-content",
-                        },
+                        style={"width": "220px", "display": "flex", "flexDirection": "column", "gap": "12px"},
                         children=[
-                            html.Label("Layers", style={
-                                "fontWeight": "600", 
-                                "fontSize": "0.8rem", 
-                                "marginBottom": "6px", 
-                                "display": "block",
-                                "color": THEME_GREEN,
-                            }),
-                            dcc.Checklist(
-                                id="enhanced-suitability-layers",
-                                options=ENHANCED_LAYER_OPTIONS,
-                                value=DEFAULT_ENHANCED_LAYERS,
-                                labelStyle={"display": "block", "fontSize": "0.75rem", "margin": "3px 0"},
+                            control_panel,
+                            html.Div(
+                                id="suitability-raster-legend",
+                                style={"border": f"1px solid {BORDER_LIGHT}", "borderRadius": "4px", "padding": "10px 12px"},
+                                children=build_raster_legend(DEFAULT_RASTER_LAYER),
                             ),
-                        ]
+                        ],
                     ),
-                ]
+                ],
+            ),
+            # Interpretation note (item 11) — concise, directly under the map.
+            html.P(
+                SUITABILITY_INTERPRETATION_NOTE,
+                style={**MUTED, "marginTop": "10px", "fontStyle": "italic", "maxWidth": "820px"},
             ),
         ],
     )
@@ -565,9 +481,12 @@ def layout(snapshot=None) -> html.Div:
     external_section = html.Div(
         style=BLOCK,
         children=[
-            html.H4("External Validation Results", style={"color": THEME_GREEN, "marginBottom": "12px"}),
-            html.P("Estonia (7 locations) and Ireland (19 locations) — results are indicative only due to very small sample sizes.", 
-                   style={**MUTED, "marginBottom": "12px"}),
+            html.H4("Exploratory Held-Out Transfer Results", style={"color": THEME_GREEN, "marginBottom": "12px"}),
+            html.P(
+                "Estonia (7 locations) and Ireland (19 locations) — an exploratory test of the "
+                "model's transfer to held-out systems, not an independent validation; results "
+                "are indicative only given the very small sample sizes.",
+                style={**MUTED, "marginBottom": "12px"}),
             _create_external_validation_table(data),
         ],
     )
@@ -599,31 +518,41 @@ def layout(snapshot=None) -> html.Div:
     ])
 
 def register_callbacks(app) -> None:
-    """Wire the enhanced controls to the map figure."""
+    """Wire the Leaflet control panel to the map + legend.
+
+    Deliberately coarse-grained (item 18): rebuilds the map's children /
+    legend content via the same build_suitability_map()/build_raster_legend()
+    helpers the initial layout used, rather than trying to patch individual
+    Leaflet layers in place — it never re-reads or re-masks raster data (the
+    overlay PNGs are already pre-generated on disk; this only picks which
+    one's URL to point at and which pre-built marker layers to include), so
+    the coarseness costs nothing at request time.
+    """
 
     @app.callback(
-        Output("enhanced-suitability-map", "figure"),
-        Input("enhanced-suitability-layers", "value"),
+        Output("suitability-leaflet-container", "children"),
+        Output("suitability-raster-legend", "children"),
+        Input("suitability-raster-radio", "value"),
+        Input("suitability-observed-checklist", "value"),
+        Input("suitability-boundaries-checklist", "value"),
+        Input("suitability-country-dropdown", "value"),
     )
-    def _update_enhanced_map(active_layers):
+    def _update_suitability_map(raster_layer, observed_values, boundaries_values, country_view):
         data = _get_notebook_data()
         if not data.available:
-            return go.Figure()
-        
-        # Use caching for map figures
-        cache_key = _get_cache_key(active_layers or [])
-        cached_figure = _get_cached_figure(cache_key)
-        
-        if cached_figure is not None:
-            print(f"✓ Using cached map for layers: {cache_key}")
-            return cached_figure
-        
-        # Generate new figure and cache it
-        print(f"Generating new map for layers: {cache_key}")
-        figure = _build_enhanced_map_figure(data, active_layers or [])
-        _cache_figure(cache_key, figure)
+            return html.Div("Notebook outputs not available."), html.Div()
 
-        return figure
+        observed_values = observed_values or []
+        leaflet_map = build_suitability_map(
+            data.occurrence_points,
+            raster_layer=raster_layer or DEFAULT_RASTER_LAYER,
+            show_occurrence="occurrence" in observed_values,
+            show_background="background" in observed_values,
+            show_boundaries="boundaries" in (boundaries_values or []),
+            country_view=country_view or "all",
+        )
+        legend = build_raster_legend(raster_layer or DEFAULT_RASTER_LAYER)
+        return leaflet_map, legend
 
     # Download button always exports the default layers (suitability +
     # occurrence) at full grid resolution — matching

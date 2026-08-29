@@ -17,6 +17,7 @@ from core.geo import (
 from core.validation import weighted_readiness_class
 from data.pipeline import FrameworkSnapshot
 from ui.downloads import download_button, register_download
+from ui.maps.interoperability_map import build_interoperability_map
 from ui.styles import BLOCK, MUTED, THEME_BLUE
 from ui.tables import make_table
 
@@ -305,7 +306,7 @@ def layout(snapshot: FrameworkSnapshot) -> html.Div:
             style=BLOCK,
             children=[
                 download_button("dl-map"),
-                dcc.Graph(figure=_build_map_figure(scatter), config={"scrollZoom": True}),
+                build_interoperability_map(scatter),
                 source_block,
             ],
         ),
