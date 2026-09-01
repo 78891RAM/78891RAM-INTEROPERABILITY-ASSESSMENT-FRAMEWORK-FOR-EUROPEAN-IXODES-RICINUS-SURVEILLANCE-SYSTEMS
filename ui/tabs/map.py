@@ -208,6 +208,76 @@ def _build_marker_traces(marker_rows: pd.DataFrame, legend_added: set[str]) -> l
     return traces
 
 
+def _build_country_list_table(scatter: pd.DataFrame) -> html.Div:
+    """Plain-text country list alongside the map — the map's polygons/dots
+    are hard to read for small or overlapping countries, so this gives the
+    same information (which countries are covered, by which systems, at
+    what readiness) as a directly scannable table instead of requiring
+    hover/zoom. EU-wide systems (iso3_all == "EUR") are listed once under
+    "EU-wide" rather than expanded to member states, since the framework
+    doesn't record which specific states an EU-wide system actually reaches.
+    """
+    df = scatter.copy()
+    df["readiness_class"] = _normalise_readiness(df["readiness_class"])
+    df["total_score"] = pd.to_numeric(df["total_score"], errors="coerce").fillna(0)
+    df["iso3_all"] = df["iso3_all"].fillna("").astype(str)
+
+    rows = []
+    for _, r in df.iterrows():
+        codes = [c.strip() for c in r["iso3_all"].split(",") if c.strip()]
+        for code in codes:
+            rows.append({
+                "country": "EU-wide" if code == "EUR" else COUNTRY_NAMES.get(code, code),
+                "system_name": r["system_name"],
+                "total_score": r["total_score"],
+                "readiness_class": r["readiness_class"],
+            })
+    if not rows:
+        return html.Div()
+
+    exploded = pd.DataFrame(rows)
+    grouped = (
+        exploded.groupby("country")
+        .agg(
+            systems=("system_name", lambda s: "; ".join(sorted(set(s)))),
+            system_count=("system_name", "nunique"),
+            avg_score=("total_score", "mean"),
+        )
+        .reset_index()
+    )
+    grouped["readiness_class"] = grouped["avg_score"].apply(weighted_readiness_class)
+    grouped["avg_score"] = grouped["avg_score"].round(1)
+    # EU-wide last — it's a distinct scope from the named countries above it, not
+    # alphabetically comparable to them.
+    grouped["_sort_key"] = grouped["country"].where(grouped["country"] != "EU-wide", "￿")
+    grouped = grouped.sort_values("_sort_key").drop(columns="_sort_key")
+
+    return html.Div(
+        style={**BLOCK, "marginTop": "16px"},
+        children=[
+            html.H4("Countries Covered", style={"color": THEME_BLUE, "marginBottom": "8px", "fontSize": "1.05rem"}),
+            html.P(
+                "One row per country referenced by any assessed system — the same "
+                "coverage shown on the map above, listed directly for countries that "
+                "are small or hard to pick out visually.",
+                style={**MUTED, "marginBottom": "12px"},
+            ),
+            make_table(
+                data=grouped.to_dict("records"),
+                columns=[
+                    {"name": "Country", "id": "country"},
+                    {"name": "Systems", "id": "systems"},
+                    {"name": "# Systems", "id": "system_count"},
+                    {"name": "Avg. Score (0–20)", "id": "avg_score"},
+                    {"name": "Readiness", "id": "readiness_class"},
+                ],
+                page_size=15,
+                sort_action="native",
+            ),
+        ],
+    )
+
+
 def _build_map_figure(scatter: pd.DataFrame) -> go.Figure:
     """Europe map — single-country systems fill their own polygon; EU-wide / multi-country systems are markers."""
     country_rows, marker_rows = _split_country_and_marker_rows(scatter)
@@ -310,6 +380,7 @@ def layout(snapshot: FrameworkSnapshot) -> html.Div:
                 source_block,
             ],
         ),
+        _build_country_list_table(scatter),
         skip_table,
     ])
 

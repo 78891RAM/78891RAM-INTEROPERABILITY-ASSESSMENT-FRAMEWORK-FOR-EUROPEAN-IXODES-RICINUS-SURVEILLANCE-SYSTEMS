@@ -21,3 +21,12 @@ kaleido==0.2.1
 # rasterio==1.5.1
 # matplotlib
 # pillow
+#
+# playwright is only imported by scripts/export_leaflet_figures.py, which
+# screenshots the two dash-leaflet maps for dissertation figures — the
+# leaflet maps render client-side (real browser, OSM tiles, JS-styled
+# GeoJSON), so unlike the Plotly figures there's no Python object Kaleido
+# can rasterize; this drives an actual headless browser instead. Install:
+#   venv/bin/python -m pip install playwright
+#   venv/bin/python -m playwright install chromium
+# playwright==1.62.0

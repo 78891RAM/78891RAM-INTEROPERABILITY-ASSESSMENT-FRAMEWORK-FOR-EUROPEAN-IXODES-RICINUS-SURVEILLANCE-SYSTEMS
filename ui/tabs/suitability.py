@@ -9,9 +9,9 @@ feature importance from the enhanced notebook pipeline.
 
 from __future__ import annotations
 
-import base64
 import json
 import os
+import textwrap
 import time
 from pathlib import Path
 
@@ -38,7 +38,6 @@ from ui.styles import (
     BLOCK, CHART_MARGIN, KPI_ROW, MUTED, THEME_GREEN, CONTENT_CARD,
     SECTION_CARD, HEADING_2, HEADING_3, BODY_TEXT, TEXT_MUTED, TEXT_DARK, BORDER_LIGHT
 )
-from config import READINESS_COLORS
 from ui.tables import make_table
 
 # Path to notebook outputs. PROJECT_ROOT is tick/ itself — this used to
@@ -50,6 +49,8 @@ from ui.tables import make_table
 # subset of the full outputs/ folder that this tab actually reads.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 OUTPUTS_DIR = PROJECT_ROOT / "outputs"
+# Still needed by export_dissertation_figures.py (copies these matplotlib
+# PNGs through unchanged) even though this tab no longer embeds them itself.
 FIGURES_DIR = OUTPUTS_DIR / "figures"
 
 # Color schemes matching the existing dashboard
@@ -160,6 +161,13 @@ class NotebookData:
         self.occurrence_geojson = _load_geojson_safe(OUTPUTS_DIR / "occurrence_layer.geojson")
         self.model_results = _load_csv_safe(OUTPUTS_DIR / "model_results.csv")
         self.transfer_matrix = _load_csv_safe(OUTPUTS_DIR / "transfer_matrix.csv")
+        if self.transfer_matrix is not None:
+            # transfer_matrix.csv's row-label column has no header in the
+            # source CSV, so pandas names it "Unnamed: 0" — rename it before
+            # display, same fix already applied in export_dissertation_figures.py.
+            self.transfer_matrix = self.transfer_matrix.rename(
+                columns={self.transfer_matrix.columns[0]: "System"}
+            )
         self.external_validation = _load_csv_safe(OUTPUTS_DIR / "external_validation.csv")
         self.feature_importance = _load_csv_safe(OUTPUTS_DIR / "feature_importance.csv")
         
@@ -247,12 +255,11 @@ def _get_cache_status() -> str:
 
 def clear_all_caches():
     """Clear all caches - useful for development/debugging."""
-    global _NOTEBOOK_DATA, _FIGURE_CACHE, _IMAGE_CACHE
-    
+    global _NOTEBOOK_DATA, _FIGURE_CACHE
+
     # Clear memory caches
     _NOTEBOOK_DATA = None
     _FIGURE_CACHE = {}
-    _IMAGE_CACHE = {}
     
     # Clear disk cache
     try:
@@ -491,15 +498,6 @@ def layout(snapshot=None) -> html.Div:
         ],
     )
 
-    # Feature importance and figures section
-    figures_section = html.Div(
-        style=BLOCK,
-        children=[
-            html.H4("Driver Importance and Partial Dependence", style={"color": THEME_GREEN, "marginBottom": "12px"}),
-            _create_figures_display(),
-        ],
-    )
-
     return html.Div([
         html.P(
             [
@@ -514,7 +512,6 @@ def layout(snapshot=None) -> html.Div:
         model_table_section,
         transfer_section,
         external_section,
-        figures_section,
     ])
 
 def register_callbacks(app) -> None:
@@ -641,26 +638,43 @@ def _build_enhanced_map_figure(
     the underlying data).
     """
     traces = []
-    
-    # Add country readiness overlay (before other layers)
-    country_readiness = {
-        "Austria": {"color": READINESS_COLORS["High"], "readiness": "High", "iso": "AUT"},
-        "Croatia": {"color": READINESS_COLORS["High"], "readiness": "High", "iso": "HRV"}, 
-        "Estonia": {"color": READINESS_COLORS["Medium"], "readiness": "Medium", "iso": "EST"},
-        "Ireland": {"color": READINESS_COLORS["Low"], "readiness": "Medium", "iso": "IRL"},  # Using Low color for Medium to differentiate
+
+    # Country border highlight, by the model's actual role for that country —
+    # NOT interoperability "readiness" (that's a surveillance-system scoring
+    # concept from config.READINESS_COLORS, unrelated to this map; the
+    # previous version of this block borrowed those colours/label to shade
+    # Estonia/Ireland "Medium"/"Austria/Croatia "High" — a "readiness" that
+    # was never defined for an ecological model and that a reader could
+    # easily confuse with the interoperability scoring elsewhere in this
+    # project). What actually matters for reading a suitability map honestly
+    # is which countries the model was trained on vs. which it was only
+    # exploratorily transferred to — see MODEL_DEVELOPMENT_COUNTRIES /
+    # EXPLORATORY_TRANSFER_COUNTRIES (ui/maps/map_layers.py), the same
+    # distinction the live leaflet map's "Study systems" panel shows.
+    ROLE_COLORS = {
+        "Model development": "#0072B2",  # Okabe-Ito blue — same family as
+        "Exploratory held-out transfer": "#E69F00",  # the interoperability map's palette
     }
-    
+    country_iso = {"Austria": "AUT", "Croatia": "HRV", "Estonia": "EST", "Ireland": "IRL"}
+    country_role = {
+        **{c: "Model development" for c in MODEL_DEVELOPMENT_COUNTRIES},
+        **{c: "Exploratory held-out transfer" for c in EXPLORATORY_TRANSFER_COUNTRIES},
+    }
+
     # Add country highlight traces
-    for country, info in country_readiness.items():
+    for country, role in country_role.items():
+        color = ROLE_COLORS[role]
         traces.append(
             go.Choropleth(
-                locations=[info["iso"]],
+                locations=[country_iso[country]],
+                locationmode="ISO-3",
                 z=[1],
-                colorscale=[[0, info["color"]], [1, info["color"]]],
+                colorscale=[[0, color], [1, color]],
                 showscale=False,
-                hovertemplate=f"<b>{country}</b><br>Readiness: {info['readiness']}<extra></extra>",
-                name=f"{country} ({info['readiness']})",
-                showlegend=False,
+                hovertemplate=f"<b>{country}</b><br>{role}<extra></extra>",
+                name=role,
+                legendgroup=role,
+                showlegend=(country == next(c for c, r in country_role.items() if r == role)),
                 marker_line_color="#333333",
                 marker_line_width=1.5,
             )
@@ -675,7 +689,6 @@ def _build_enhanced_map_figure(
     }
     
     for country, coords in country_centers.items():
-        readiness_info = country_readiness[country]
         traces.append(
             go.Scattergeo(
                 lat=[coords["lat"]],
@@ -838,10 +851,39 @@ def _build_enhanced_map_figure(
     )
     fig.update_layout(
         title="",  # Remove duplicate title since we have section heading
-        margin={**CHART_MARGIN, "r": 120},  # Right margin for external colorbar
+        margin={**CHART_MARGIN, "r": 120, "b": 185},  # Right margin for colorbar, bottom for legend + caption
         height=None,  # Let it use container height
         font=dict(family="system-ui, sans-serif", size=13, color="#2c3e50"),
-        showlegend=False,  # Hide map legend since we have it in left panel
+        # This figure is only ever produced as a standalone image (the
+        # "Download figure" button and the dissertation export) — there is
+        # no adjacent HTML panel to carry the role/point legend the way the
+        # live leaflet map does, so unlike the leaflet map, this one needs
+        # its own legend to be self-explanatory on its own.
+        showlegend=True,
+        legend=dict(
+            orientation="h",
+            yanchor="top", y=-0.06,
+            xanchor="left", x=0,
+            bgcolor="rgba(255,255,255,0.85)",
+            bordercolor="#bdc3c7", borderwidth=1,
+            font=dict(size=11),
+        ),
+        # Dissertation figures are typically inserted standalone with a short
+        # caption — bake the same caveat the live map carries in adjacent
+        # HTML (SUITABILITY_INTERPRETATION_NOTE) directly into the image so
+        # it survives being lifted out of the dashboard. Plotly annotations
+        # don't auto-wrap, so the words are wrapped to ~70 chars/line first.
+        annotations=[
+            dict(
+                text="<br>".join(textwrap.wrap(SUITABILITY_INTERPRETATION_NOTE, width=70)),
+                xref="paper", yref="paper",
+                x=0, y=-0.14,
+                xanchor="left", yanchor="top",
+                showarrow=False,
+                font=dict(size=10, color="#7f8c8d"),
+                align="left",
+            )
+        ],
         # Performance optimizations
         dragmode="pan",  # Disable zoom box for faster interaction
         hovermode="closest",  # More efficient hover detection
@@ -921,78 +963,6 @@ def _create_external_validation_table(data: NotebookData) -> html.Div:
             "width": "100%",
         }
     )
-
-# Image cache for base64 encoded figures
-_IMAGE_CACHE: dict[str, str] = {}
-
-def _get_cached_image(figure_path: Path) -> str | None:
-    """Get cached base64 image if file hasn't changed."""
-    cache_key = str(figure_path)
-    
-    if cache_key in _IMAGE_CACHE:
-        # Check if file was modified since caching
-        cache_path = _get_cache_path(f"img_{figure_path.name}")
-        if _is_cache_valid(cache_path, figure_path):
-            return _IMAGE_CACHE[cache_key]
-    
-    return None
-
-def _cache_image(figure_path: Path, encoded_image: str):
-    """Cache base64 encoded image."""
-    cache_key = str(figure_path)
-    _IMAGE_CACHE[cache_key] = encoded_image
-    
-    # Also save to disk cache
-    cache_path = _get_cache_path(f"img_{figure_path.name}")
-    _save_to_cache(encoded_image, cache_path)
-
-def _create_figures_display() -> html.Div:
-    """Display feature importance and partial dependence figures with caching."""
-    figures_html = []
-    
-    # List of figures to display
-    figure_files = [
-        ("feature_importance.png", "Feature Importance"),
-        ("partial_dependence_curves.png", "Partial Dependence Curves"),
-        ("observed_vs_suitability.png", "Observations vs Suitability"),
-        ("spatial_validation_blocks.png", "Spatial Validation Blocks"),
-    ]
-    
-    for filename, title in figure_files:
-        figure_path = FIGURES_DIR / filename
-        if figure_path.exists():
-            try:
-                # Check cache first
-                encoded = _get_cached_image(figure_path)
-                
-                if encoded is None:
-                    # Load and encode image
-                    print(f"Encoding image: {filename}")
-                    with open(figure_path, 'rb') as f:
-                        encoded = base64.b64encode(f.read()).decode()
-                    _cache_image(figure_path, encoded)
-                else:
-                    print(f"✓ Using cached image: {filename}")
-                
-                figures_html.append(
-                    html.Div([
-                        html.H5(title, style={"marginBottom": "8px", "color": "#34495e"}),
-                        html.Img(
-                            src=f"data:image/png;base64,{encoded}",
-                            style={"maxWidth": "100%", "height": "auto", "marginBottom": "16px"}
-                        ),
-                    ])
-                )
-            except Exception as e:
-                figures_html.append(
-                    html.P(f"Could not load {title}: {e}", style=MUTED)
-                )
-        else:
-            figures_html.append(
-                html.P(f"{title}: Figure not available", style=MUTED)
-            )
-    
-    return html.Div(figures_html)
 
 def _placeholder_message(message: str) -> html.Div:
     """Create a professional placeholder message for missing data with thematic styling."""

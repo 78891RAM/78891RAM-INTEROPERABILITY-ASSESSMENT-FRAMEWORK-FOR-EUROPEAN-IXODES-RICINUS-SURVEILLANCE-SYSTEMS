@@ -1,0 +1,7 @@
+system_id,api_availability,schema_completeness,semantic_alignment,license_openness,spatial_resolution,documentation_quality,governance_gdpr_clarity,data_quality,update_frequency,temporal_coverage
+SYS01,2,2,2,0,2,2,1,2,1,2
+SYS02,0,1,1,0,1,1,1,2,0,2
+SYS04,0,0,1,1,0,1,2,0,0,1
+SYS05,0,0,0,0,1,1,1,1,1,2
+SYS06,2,2,2,2,2,2,1,2,1,2
+SYS11,0,0,0,0,2,1,0,1,2,2

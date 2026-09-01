@@ -29,12 +29,12 @@ EXPECTED_SCORES = {
     "SYS02": (12.0, "Medium"),
     "SYS03": (8.0, "Low"),
     "SYS04": (8.0, "Low"),
-    "SYS05": (9.0, "Low"),
+    "SYS05": (10.0, "Medium"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
     "SYS06": (19.0, "High"),
     "SYS07": (6.0, "Low"),
-    "SYS08": (13.0, "Medium"),
+    "SYS08": (14.0, "Medium"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
     "SYS09": (11.0, "Medium"),
-    "SYS10": (7.0, "Low"),
+    "SYS10": (8.0, "Low"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
     "SYS11": (9.0, "Low"),
     "SYS12": (18.0, "High"),
     "SYS13": (11.0, "Medium"),

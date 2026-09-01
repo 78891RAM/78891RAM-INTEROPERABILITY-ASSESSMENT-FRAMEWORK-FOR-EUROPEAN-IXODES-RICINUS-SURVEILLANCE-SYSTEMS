@@ -1,0 +1,4 @@
+system_id,system_name,criterion,original_score,retest_score
+SYS01,VectorNet Data Portal (GBIF),license_openness,0,1
+SYS06,UK Tick Surveillance Scheme (TSS),update_frequency,1,2
+SYS08,ZEMEKI,governance_gdpr_clarity,2,1
