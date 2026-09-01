@@ -6,8 +6,8 @@ from dash import html, dcc
 
 from data.pipeline import FrameworkSnapshot
 from ui.styles import (
-    FIXED_HEADER, HEADER_SPACER_HEIGHT, TAB_PANEL, THEME_GREEN, 
-    NEUTRAL_BG, BORDER_LIGHT, HEADING_1, BODY_TEXT, TEXT_MUTED
+    FIXED_HEADER, HEADER_SPACER_HEIGHT, TAB_PANEL, THEME_GREEN,
+    NEUTRAL_BG, HEADING_1,
 )
 from ui.tabs import barriers, evidence, export, integration, map as map_tab
 from ui.tabs import methodology, overview, recommendations, scores, suitability
@@ -48,46 +48,6 @@ def render_tab_content(snapshot: FrameworkSnapshot, tab_id: str) -> html.Div:
     """Render the active tab body (used by tab-switch callback)."""
     layout_fn = _TAB_LAYOUTS.get(tab_id, overview.layout)
     return _tab_panel(layout_fn(snapshot))
-
-
-def _footer(snapshot: FrameworkSnapshot) -> html.Div:
-    """Enhanced footer with system count and image credits."""
-    n = len(snapshot.systems) if snapshot.ok else 0
-    return html.Div(
-        style={
-            "maxWidth": "1150px",
-            "margin": "40px auto 32px",
-            "padding": "20px 16px",
-            "borderTop": f"1px solid {BORDER_LIGHT}",
-            "background": "transparent",
-        },
-        children=[
-            html.Div(
-                style={"display": "flex", "justifyContent": "space-between", "alignItems": "center", "flexWrap": "wrap", "gap": "16px"},
-                children=[
-                    html.P(
-                        f"Dashboard assessment: {n} surveillance systems evaluated",
-                        style={
-                            **BODY_TEXT,
-                            "color": TEXT_MUTED,
-                            "fontSize": "0.85rem",
-                            "margin": "0",
-                        },
-                    ),
-                    html.P(
-                        "Images: Custom surveillance icons. Data visualization: Plotly/Dash.",
-                        style={
-                            **BODY_TEXT,
-                            "color": TEXT_MUTED,
-                            "fontSize": "0.8rem",
-                            "margin": "0",
-                            "fontStyle": "italic",
-                        },
-                    ),
-                ],
-            ),
-        ],
-    )
 
 
 def create_layout(snapshot: FrameworkSnapshot) -> html.Div:
@@ -133,16 +93,7 @@ def create_layout(snapshot: FrameworkSnapshot) -> html.Div:
                                                             **HEADING_1,
                                                             "color": "#ffffff",
                                                             "fontSize": "1.65rem",
-                                                            "marginBottom": "4px",
-                                                        },
-                                                    ),
-                                                    html.P(
-                                                        "MSc Dissertation • Advanced Computational Methods for Vector-Borne Disease Surveillance",
-                                                        style={
-                                                            **BODY_TEXT,
-                                                            "color": "rgba(255, 255, 255, 0.9)",
-                                                            "fontSize": "0.9rem",
-                                                            "margin": "0",
+                                                            "marginBottom": "0",
                                                         },
                                                     ),
                                                 ],
@@ -232,7 +183,6 @@ def create_layout(snapshot: FrameworkSnapshot) -> html.Div:
                 style={"background": NEUTRAL_BG, "minHeight": "60vh"},
                 children=render_tab_content(snapshot, "overview"),
             ),
-            _footer(snapshot),
         ],
     )
 

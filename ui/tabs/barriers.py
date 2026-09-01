@@ -49,11 +49,16 @@ _KPI_GRID = {
     "marginBottom": "24px",
 }
 _CHART_GRID = {
-    "display": "grid",
-    # 280px, not e.g. 400px: minmax()'s minimum must fit inside the smallest
-    # viewport being supported (the spec's own 390px phone test width) or the
-    # grid track itself becomes the thing causing horizontal overflow.
-    "gridTemplateColumns": "repeat(auto-fit, minmax(280px, 1fr))",
+    # flex, not CSS grid: Plotly renders each dcc.Graph's SVG with an
+    # internal height:100% — inside a `display: grid` row with no explicit
+    # row height, that percentage has nothing definite to resolve against
+    # and the charts collapse/overlap into a sliver (the "squeezed" bug).
+    # flexbox's align-items:stretch gives each item a definite cross-axis
+    # height before Plotly measures it, which is why the same pattern
+    # already works for Overview's side-by-side charts (CHART_ROW/CHART_CELL
+    # in ui/styles.py) — mirrored here rather than fighting the grid version.
+    "display": "flex",
+    "flexWrap": "wrap",
     "gap": "16px",
 }
 _SECTION_HEADING = {"color": THEME_GREEN, "fontSize": "1.15rem", "marginBottom": "12px"}
@@ -75,10 +80,21 @@ def build_severity_by_system_chart(chart_df):
         labels={"barrier_type": "Barrier Type", "severity_rank": "Severity", "system_name": ""},
     )
     fig_bar.update_layout(
-        margin=CHART_MARGIN,
+        margin={**CHART_MARGIN, "t": 90},
         height=420,
         xaxis_tickangle=-40,
-        legend_title_text="Barrier Type",
+        # Horizontal legend above the plot, not Plotly's default vertical
+        # legend at the right — with 5 barrier-type categories, the default
+        # right-side legend didn't fit in the chart's height and rendered as
+        # a clipped, scrollable strip ("Technical"/"Semantic" visible, the
+        # other 3 categories hidden behind a scrollbar). A single horizontal
+        # row above the plot has ample width (1150px) for all 5 at once.
+        legend=dict(
+            title_text="Barrier Type",
+            orientation="h",
+            yanchor="bottom", y=1.02,
+            xanchor="left", x=0,
+        ),
         autosize=True,
     )
     return fig_bar
@@ -165,11 +181,35 @@ def layout(snapshot: FrameworkSnapshot) -> html.Div:
     sev = barrier_severity_distribution(details)
     fig_sev = build_severity_distribution_chart(sev)
 
-    chart_cells = [
-        html.Div([download_button(dl_id), dcc.Graph(figure=fig, config=PLOTLY_CONFIG, style={"width": "100%"})])
-        for fig, dl_id in ((fig_bar, "dl-barrier-severity-system"), (fig_sev, "dl-barrier-severity-dist"))
-        if fig is not None
-    ]
+    # fig_bar (14 systems x 5 barrier categories, grouped) needs far more
+    # width than fig_sev (3 severity levels) — forcing both into equal-width
+    # columns squeezed fig_bar's bars/labels into half the row. flexBasis:
+    # 100% forces it onto its own row in the wrapping flex container;
+    # fig_sev keeps the normal CHART_CELL-style flex sizing below it.
+    #
+    # Explicit pixel height on dcc.Graph itself (matching each figure's own
+    # layout height=) is required here specifically because this tab's
+    # content is injected by the tab-switch callback into a container that
+    # is still unmeasured/hidden at the moment Plotly.js first mounts —
+    # Plotly's internal height:100% + autosize then measures against that
+    # and caches a ~40px height that never gets recomputed. Overview's
+    # charts don't need this because they're part of the page's initial
+    # render, where the container already has a real size when Plotly mounts.
+    chart_cells = []
+    if fig_bar is not None:
+        chart_cells.append(
+            html.Div(
+                [download_button("dl-barrier-severity-system"), dcc.Graph(figure=fig_bar, config=PLOTLY_CONFIG, style={"width": "100%", "height": "420px"})],
+                style={"flexBasis": "100%"},
+            )
+        )
+    if fig_sev is not None:
+        chart_cells.append(
+            html.Div(
+                [download_button("dl-barrier-severity-dist"), dcc.Graph(figure=fig_sev, config=PLOTLY_CONFIG, style={"width": "100%", "height": "360px"})],
+                style={"flex": "1", "minWidth": "280px"},
+            )
+        )
 
     severity_section = html.Div(
         style=BLOCK,

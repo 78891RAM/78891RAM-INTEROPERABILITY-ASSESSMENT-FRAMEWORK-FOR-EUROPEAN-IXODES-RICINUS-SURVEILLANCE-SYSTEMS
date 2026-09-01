@@ -14,10 +14,10 @@ def layout(_snapshot=None) -> html.Div:
         ("System Identification", "Select representative national and pan-European systems (VectorNet, CiTIQUE, national schemes, and others)."),
         ("Metadata Extraction", "Manual curation into data/systems.csv: coverage, access, licence, standards, governance."),
         ("Interoperability Scoring", "10-criterion scorecard (0–2 each), reported as a total plus technical and governance sub-scores — see Scores."),
-        ("Scoring Consistency Check", "Test-retest comparison — not blind expert validation."),
+        ("Scoring Consistency Check", "Criterion-by-criterion audit of each score against its source evidence, not blind expert re-scoring — corrections applied and documented per system where a score didn't match the evidence on file (see data/systems.csv notes)."),
         ("Barrier Classification & Hard Gate", "Score combined with barrier severity across five dimensions (technical, semantic, legal, governance, accessibility). A system scoring zero on a genuinely blocking criterion — starting with API availability — is capped below \"High integration ready\" by an explicit hard-gate rule, regardless of total score. This barrier-adjusted integration class, not the raw score, is the app's headline verdict — see Integration."),
         ("Standardisation Target", "Darwin Core, FAIR principles, REST APIs, and shared vocabularies — the interoperability benchmark the scorecard measures systems against."),
-        ("Ecological Suitability Modelling", "A field-validated tick presence/absence model, independent from the interoperability scorecard, shown on its own Ecological Suitability dashboard tab."),
+        ("Ecological Suitability Modelling", "A proof-of-concept ecological suitability model (spatial-block cross-validated, not field-validated), independent from the interoperability scorecard, shown on its own Ecological Suitability dashboard tab."),
         ("Visual Analytics", "Interactive Dash dashboard: Overview, Map, Scores, Barriers, Integration, Ecological Suitability, Recommendations, Evidence, and Export."),
         ("Repository & Policy Recommendations", "Roadmap toward a harmonised European metadata repository — a central catalogue with provenance and access policies — plus evidence-based policy recommendations for EU tick surveillance interoperability."),
     ]

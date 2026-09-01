@@ -44,10 +44,20 @@ def build_integration_chart(df):
     fig.update_layout(
         xaxis_tickangle=-40,
         height=420,
-        margin=CHART_MARGIN,
+        margin={**CHART_MARGIN, "t": 90},
         xaxis_title="",
         yaxis_title="Total Score (0–20)",
-        legend_title_text="Classification",
+        # Horizontal legend above the plot, not Plotly's default vertical
+        # legend at the right — the default right-side legend didn't have
+        # enough height for all 3 classifications and clipped "Low
+        # integration ready" (12 of 14 systems) behind a scrollbar, same bug
+        # as the Barriers tab's severity chart (see build_severity_by_system_chart).
+        legend=dict(
+            title_text="Classification",
+            orientation="h",
+            yanchor="bottom", y=1.02,
+            xanchor="left", x=0,
+        ),
     )
     return fig
 

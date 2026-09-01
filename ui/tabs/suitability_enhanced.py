@@ -57,6 +57,13 @@ class NotebookData:
         self.occurrence_geojson = _load_geojson_safe(OUTPUTS_DIR / "occurrence_layer.geojson")
         self.model_results = _load_csv_safe(OUTPUTS_DIR / "model_results.csv")
         self.transfer_matrix = _load_csv_safe(OUTPUTS_DIR / "transfer_matrix.csv")
+        if self.transfer_matrix is not None:
+            # transfer_matrix.csv's row-label column has no header in the
+            # source CSV, so pandas names it "Unnamed: 0" — rename it before
+            # display, same fix already applied in export_dissertation_figures.py.
+            self.transfer_matrix = self.transfer_matrix.rename(
+                columns={self.transfer_matrix.columns[0]: "System"}
+            )
         self.external_validation = _load_csv_safe(OUTPUTS_DIR / "external_validation.csv")
         self.feature_importance = _load_csv_safe(OUTPUTS_DIR / "feature_importance.csv")
         

@@ -82,6 +82,12 @@ outputs/figures/*
 !outputs/figures/environmental_distributions.png
 !outputs/figures/roc_pr_curves.png
 
+# Dissertation-evidence artifacts, not regenerable app/notebook byproducts —
+# tracked in full rather than allowlisted file-by-file.
+!outputs/weighting_robustness.csv
+!outputs/retest/
+!outputs/retest/*
+
 # Full notebook output dirs, written when BASE=tick/ (~155MB) — not read
 # by the deployed app. The live map's raster imagery comes from the small,
 # pre-generated assets/overlays/ PNGs instead (see

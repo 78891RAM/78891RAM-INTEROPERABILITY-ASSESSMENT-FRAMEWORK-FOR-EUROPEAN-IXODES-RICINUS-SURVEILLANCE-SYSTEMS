@@ -1,0 +1,6 @@
+system_id,system_name,api_availability,schema_completeness,semantic_alignment,license_openness,spatial_resolution,documentation_quality,governance_gdpr_clarity,data_quality,update_frequency,temporal_coverage
+SYS01,VectorNet Data Portal (GBIF),2,2,2,0,2,2,2,2,1,2
+SYS02,ECDC Tick Distribution Maps,0,1,1,0,1,2,2,2,1,2
+SYS04,PRAGMATICK (COST Action CA21170),0,0,1,1,0,2,2,0,1,1
+SYS05,Tekenradar.nl,0,1,0,0,1,1,1,1,2,2
+SYS11,Punkkilive,0,1,0,0,2,1,0,1,2,2

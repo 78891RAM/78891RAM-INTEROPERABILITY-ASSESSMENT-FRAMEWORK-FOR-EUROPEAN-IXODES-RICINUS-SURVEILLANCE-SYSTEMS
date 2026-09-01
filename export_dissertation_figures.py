@@ -353,6 +353,123 @@ def _build_presence_absence_map(occurrence_points: pd.DataFrame) -> go.Figure:
     return fig
 
 
+def _build_framework_architecture_figure(n_systems: int):
+    """Interoperability assessment framework architecture diagram: evidence
+    collection -> ten-criterion scorecard -> barrier assessment ->
+    integration-readiness layer -> outputs. Content matches the actual
+    pipeline (core/validation.py, core/barriers.py, core/integration.py) —
+    box text below is not decorative, it names the real criteria/dimensions/
+    thresholds the code uses, so if those change this figure needs updating
+    to match, not just re-running.
+    """
+    import matplotlib.pyplot as plt
+    from matplotlib.patches import FancyBboxPatch, FancyArrowPatch
+
+    fig, ax = plt.subplots(figsize=(15, 7.3))
+    ax.set_xlim(0, 15)
+    ax.set_ylim(0.9, 8.3)
+    ax.axis("off")
+    ax.set_title(
+        "Interoperability Assessment Framework — Architecture",
+        fontsize=17, fontweight="bold", color=THEME_GREEN, pad=14,
+    )
+
+    boxes = {
+        "evidence": dict(xy=(0.5, 5.3), w=3.6, h=2.6, fc="#e8f5e9",
+            title="Evidence collection",
+            lines=[
+                "System metadata + curated evidence CSV",
+                "Source URL/DOI recorded per criterion",
+                f"{n_systems} selected surveillance systems",
+            ]),
+        "scorecard": dict(xy=(5.6, 5.3), w=3.8, h=2.6, fc="#e3eefb",
+            title="Ten-criterion scorecard",
+            lines=[
+                "10 criteria, each scored 0–2",
+                "Technical sub-score (5 criteria): 0–10",
+                "Governance sub-score (5 criteria): 0–10",
+                "Total score: 0–20",
+            ]),
+        "barriers": dict(xy=(0.5, 1.3), w=3.6, h=3.6, fc="#fdf0e3",
+            title="Barrier assessment",
+            lines=[
+                "Technical · Semantic · Legal",
+                "Governance · Accessibility",
+                "Severity = worst mapped criterion score",
+            ]),
+        "integration": dict(xy=(5.6, 1.3), w=3.8, h=3.6, fc="#fbe7f0",
+            title="Integration-readiness layer",
+            lines=[
+                "Raw band: High ≥15 · Medium 10–14 · Low <10",
+                "High-severity barrier → Low integration\nreadiness",
+                "Study-specific hard gate: zero programmatic\naccess prevents High classification",
+                "Final class: High · Medium · Low",
+            ]),
+        "outputs": dict(xy=(10.4, 2.95), w=4.0, h=3.3, fc="#ede7f6",
+            title="Outputs",
+            lines=[
+                "10-tab interactive dashboard",
+                "Per-system evidence & recommendations",
+                "Static dissertation figure exports",
+                f"Assessment across {n_systems} selected systems",
+                "Four-system downstream proof of concept",
+            ]),
+    }
+
+    centers = {}
+    for key, b in boxes.items():
+        x, y = b["xy"]
+        ax.add_patch(FancyBboxPatch(
+            (x, y), b["w"], b["h"],
+            boxstyle="round,pad=0.02,rounding_size=0.12",
+            linewidth=1.6, edgecolor="#333333", facecolor=b["fc"],
+        ))
+        ax.text(x + 0.22, y + b["h"] - 0.38, b["title"], fontsize=13, fontweight="bold", color="#1a1a1a")
+        ty = y + b["h"] - 0.85
+        for line in b["lines"]:
+            # A bullet can carry an embedded "\n" (pre-wrapped long wording)
+            # — advance ty by extra rows for each wrapped line so it doesn't
+            # overlap the next bullet.
+            ax.text(x + 0.26, ty, f"• {line}", fontsize=10.3, color="#333333", va="top", linespacing=1.4)
+            ty -= 0.42 + 0.34 * line.count("\n")
+        centers[key] = (x, y, b["w"], b["h"])
+
+    def arrow(a, b_key, side_a="right", side_b="left", frac_a=0.5, frac_b=0.5):
+        bx0, by0, bw0, bh0 = centers[a]
+        bx1, by1, bw1, bh1 = centers[b_key]
+        p1 = {
+            "right": (bx0 + bw0, by0 + bh0 * frac_a),
+            "bottom": (bx0 + bw0 / 2, by0),
+            "top": (bx0 + bw0 / 2, by0 + bh0),
+        }[side_a]
+        p2 = {
+            "left": (bx1, by1 + bh1 * frac_b),
+            "top": (bx1 + bw1 / 2, by1 + bh1),
+        }[side_b]
+        return p1, p2
+
+    # scorecard->outputs and integration->outputs both terminate on outputs'
+    # left edge from opposite directions (down-right / up-right) — anchoring
+    # each at a different height on both ends keeps the two lines visibly
+    # apart near Integration's top-right corner instead of pinching together
+    # right where the box outline is, which read as the arrow clipping it.
+    for (p1, p2) in [
+        arrow("evidence", "scorecard"),
+        arrow("evidence", "barriers", side_a="bottom", side_b="top"),
+        arrow("scorecard", "integration", side_a="bottom", side_b="top"),
+        arrow("barriers", "integration"),
+        arrow("scorecard", "outputs", frac_a=0.8, frac_b=0.72),
+        arrow("integration", "outputs", frac_a=0.72, frac_b=0.28),
+    ]:
+        ax.add_patch(FancyArrowPatch(
+            p1, p2, arrowstyle="-|>", mutation_scale=16,
+            linewidth=1.8, color="#555555", shrinkA=2, shrinkB=2,
+        ))
+
+    plt.tight_layout()
+    return fig
+
+
 def main() -> None:
     print(f"Output directory: {OUTPUT_DIR}")
     if OUTPUT_DIR.exists():
@@ -367,6 +484,16 @@ def main() -> None:
     systems = snapshot.systems
     n_systems = len(systems)
     print(f"Loaded snapshot: {n_systems} systems")
+
+    # --- Framework architecture diagram (matplotlib, not Plotly — no
+    # underlying data to plot, just the pipeline structure) ---
+    print("Framework architecture:")
+    arch_fig = _build_framework_architecture_figure(n_systems)
+    arch_path = OUTPUT_DIR / "fig_framework_architecture.png"
+    arch_fig.savefig(arch_path, dpi=150, bbox_inches="tight")
+    import matplotlib.pyplot as plt
+    plt.close(arch_fig)
+    print(f"  wrote {arch_path.name} ({arch_path.stat().st_size / 1024:.0f} KB)")
 
     # --- Overview tab ---
     print("Overview tab:")
