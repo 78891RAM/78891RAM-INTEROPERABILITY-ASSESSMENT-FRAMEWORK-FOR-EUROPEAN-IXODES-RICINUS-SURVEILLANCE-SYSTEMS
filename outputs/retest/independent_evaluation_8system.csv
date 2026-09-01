@@ -1,0 +1,22 @@
+system_id,system_name,criterion,original_score,retest_score
+SYS03,CiTIQUE,schema_completeness,1,0
+SYS07,Tick Prevention App (Switzerland),schema_completeness,1,0
+SYS07,Tick Prevention App (Switzerland),spatial_resolution,1,0
+SYS07,Tick Prevention App (Switzerland),documentation_quality,1,0
+SYS07,Tick Prevention App (Switzerland),update_frequency,1,0
+SYS07,Tick Prevention App (Switzerland),temporal_coverage,1,0
+SYS09,ZePaK / CLIMATICK Tick Atlas,api_availability,1,0
+SYS09,ZePaK / CLIMATICK Tick Atlas,spatial_resolution,1,0
+SYS09,ZePaK / CLIMATICK Tick Atlas,governance_gdpr_clarity,2,1
+SYS09,ZePaK / CLIMATICK Tick Atlas,update_frequency,1,0
+SYS10,Tickwatcher / Kullancsfigyelo (Tick Monitor),schema_completeness,1,0
+SYS10,Tickwatcher / Kullancsfigyelo (Tick Monitor),data_quality,1,0
+SYS10,Tickwatcher / Kullancsfigyelo (Tick Monitor),update_frequency,1,0
+SYS10,Tickwatcher / Kullancsfigyelo (Tick Monitor),temporal_coverage,1,2
+SYS12,AGES Tick Monitoring,license_openness,2,1
+SYS12,AGES Tick Monitoring,governance_gdpr_clarity,2,1
+SYS12,AGES Tick Monitoring,temporal_coverage,1,0
+SYS13,TekenNet / TiquesNet / ZeckenNet,schema_completeness,1,0
+SYS13,TekenNet / TiquesNet / ZeckenNet,governance_gdpr_clarity,2,1
+SYS13,TekenNet / TiquesNet / ZeckenNet,data_quality,1,2
+SYS14,Multi-pathogen high-throughput tick screening study (FR/DK/NL),governance_gdpr_clarity,1,0

@@ -1,3 +1,3 @@
 roc_auc,pr_auc,f1,balanced_accuracy,sensitivity,specificity,train_systems,test_system,feature_set,model,n_presence,n_background
-1.0,1.0,0.8235294117647058,0.7857142857142857,1.0,0.5714285714285714,Austria+Croatia,Estonia,final,Extra Trees,7,7
-1.0,1.0,0.8837209302325582,0.8076923076923077,1.0,0.6153846153846154,Austria+Croatia,Ireland,final,Extra Trees,19,13
+0.30952380952380953,0.5481601731601731,0.16666666666666666,0.23809523809523808,0.14285714285714285,0.3333333333333333,Austria+Croatia,Estonia,final,Extra Trees,7,6
+0.6473684210526316,0.7100925469529837,0.0,0.5,0.0,1.0,Austria+Croatia,Ireland,final,Extra Trees,19,15

@@ -21,18 +21,20 @@ from data.pipeline import build_framework
 # data/systems.csv and CONTEXT.md's "Scorecard scoring conventions" section
 # for the evidence-cited reasoning behind each change. SYS14's readiness_class
 # moving Medium -> Low is an intended consequence of that correction, not a
-# regression.
+# regression. SYS06 20.0->19.0: update_frequency corrected 2->1 (evidence
+# "Quarterly data releases" is the periodic tier, not continuous/real-time —
+# see its SCORING AUDIT note); readiness_class unaffected (still >=15, High).
 EXPECTED_SCORES = {
     "SYS01": (17.0, "High"),
     "SYS02": (12.0, "Medium"),
     "SYS03": (8.0, "Low"),
     "SYS04": (8.0, "Low"),
-    "SYS05": (9.0, "Low"),
-    "SYS06": (20.0, "High"),
+    "SYS05": (10.0, "Medium"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
+    "SYS06": (19.0, "High"),
     "SYS07": (6.0, "Low"),
-    "SYS08": (13.0, "Medium"),
+    "SYS08": (14.0, "Medium"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
     "SYS09": (11.0, "Medium"),
-    "SYS10": (7.0, "Low"),
+    "SYS10": (8.0, "Low"),  # governance_gdpr_clarity corrected 1->2, see data/systems.csv notes
     "SYS11": (9.0, "Low"),
     "SYS12": (18.0, "High"),
     "SYS13": (11.0, "Medium"),
