@@ -68,19 +68,9 @@ outputs/*
 !outputs/transfer_matrix.csv
 !outputs/external_validation.csv
 !outputs/feature_importance.csv
-!outputs/figures/
-outputs/figures/*
-!outputs/figures/feature_importance.png
-!outputs/figures/partial_dependence_curves.png
-!outputs/figures/architecture.png
-!outputs/figures/cleaning_funnel.png
-!outputs/figures/leakage_comparison.png
-!outputs/figures/feature_set_progression.png
-!outputs/figures/model_comparison_heatmap.png
-!outputs/figures/metrics_heatmap.png
-!outputs/figures/external_validation_heatmap.png
-!outputs/figures/environmental_distributions.png
-!outputs/figures/roc_pr_curves.png
+# outputs/figures/ — fully ignored, no exceptions (was previously allowlisted
+# to track ~11 specific PNGs the app/export script read; that allowlist was
+# removed on request).
 
 # Dissertation-evidence artifacts, not regenerable app/notebook byproducts —
 # tracked in full rather than allowlisted file-by-file.
